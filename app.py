@@ -3,6 +3,7 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import PyPDF2
+import re
 
 # Job dataset
 jobs = {
@@ -48,15 +49,19 @@ def extract_text_from_pdf(uploaded_file):
         text += page.extract_text()
     return text
 def get_missing_skills(resume, job_desc):
-    resume_words = set(resume.lower().split())
-    job_words = set(job_desc.lower().split())
+    resume_words = set(clean_text(resume))
+    job_words = set(clean_text(job_desc))
     missing = job_words - resume_words
     return list(missing)[:5]
 def skill_match_percentage(resume, job_desc):
-    resume_words = set(resume.lower().split())
-    job_words = set(job_desc.lower().split())
+    resume_words = set(clean_text(resume))
+    job_words = set(clean_text(job_desc))
     matched = resume_words & job_words
     return int(len(matched) / len(job_words) * 100)
+def clean_text(text):
+    text = text.lower()
+    text = re.sub(r'[^a-zA-Z0-9 ]', ' ', text)  # remove special chars
+    return text.split()
 
 # UI
 st.markdown("""
